@@ -6,23 +6,23 @@
 #include <ittnotify.h>
 
 
-class VTuneProfiler : public Profiler
+class vtune_profiler : public profiler
 {
 public:
-    VTuneProfiler()
+    vtune_profiler()
         : domain_(__itt_domain_create("main app"))
     { }
 
-    VTuneProfiler(const std::string &domain_name)
+    vtune_profiler(const std::string &domain_name)
         : domain_(__itt_domain_create(domain_name.c_str()))
     { }
 
-    void InitParallel()
+    void init_parallel()
     {
         // do nothing, VTune API takes care of these
     }
 
-    void Start(const std::string &region)
+    void start(const std::string &region)
     {
         if (taskmap_.find(region) == taskmap_.end()) {
             __itt_string_handle *task =
@@ -33,22 +33,22 @@ public:
         __itt_task_begin(domain_, __itt_null, __itt_null, taskmap_[region]);
     }
 
-    void Stop(const std::string &region)
+    void stop(const std::string &region)
     {
         __itt_task_end(domain_);
     }
 
-    double Time(const std::string &region)
+    double time(const std::string &region)
     {
         return 0.;
     }
 
-    double Time()
+    double time()
     {
         return 0.;
     }
 
-    void Report() const
+    void report() const
     {
         // nothing to report from here
     }

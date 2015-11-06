@@ -12,24 +12,24 @@
 
 #include <iostream>
 
-class ChronoProfiler : public Profiler
+class chrono_profiler : public profiler
 {
     using clock_type = std::chrono::high_resolution_clock;
     using duration_type = std::chrono::duration<double>;
 
 public:
-    ChronoProfiler()
+    chrono_profiler()
     {
         // Just initialise for the calling thread
-        InitParallel();
+        init_parallel();
     }
 
-    void InitParallel();
+    void init_parallel();
 
-    void Start(const std::string &region)
+    void start(const std::string &region)
     {
         // Non initialised threads will be ignored
-        auto task_id = GetLocalTaskID();
+        auto task_id = local_task_id();
         if (task_id < 0)
             return;
 
@@ -41,10 +41,10 @@ public:
         }
     }
 
-    void Stop(const std::string &region)
+    void stop(const std::string &region)
     {
         // Not initialised thread will be ignored
-        auto task_id = GetLocalTaskID();
+        auto task_id = local_task_id();
         if (task_id < 0)
             return;
 
@@ -55,14 +55,14 @@ public:
         }
     }
 
-    double Time();
-    double Time(const std::string &region);
-    void Report() const;
+    double time();
+    double time(const std::string &region);
+    void report() const;
 
 private:
-    std::size_t GetLocalTaskID()
+    std::size_t local_task_id()
     {
-        auto tid = GetSystemThreadID();
+        auto tid = system_thread_id();
         std::size_t ret = -1;
         if (tid_map_.find(tid) != tid_map_.end())
             ret = tid_map_[tid];

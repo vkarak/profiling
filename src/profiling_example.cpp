@@ -19,38 +19,38 @@
 
 int main()
 {
-    ProfilingInit();
+    profiling_init();
 
-    ChronoProfiler cprof;
-    ProfilingRegisterBackend(cprof, "chrono");
+    chrono_profiler cprof;
+    profiling_register_backend(cprof, "chrono");
 
 #ifdef HAVE_VTUNE
-    VTuneProfiler vtprof;
-    ProfilingRegisterBackend(vtprof, "vtune");
+    vtune_profiler vtprof;
+    profiling_register_backend(vtprof, "vtune");
 #endif
 
 #ifdef HAVE_LIKWID
-    VTuneProfiler lwprof;
-    ProfilingRegisterBackend(lwprof, "likwid");
+    likwid_profiler lwprof;
+    profiling_register_backend(lwprof, "likwid");
 #endif
 
     PARALLEL_REGION
     {
-        ProfilingInitParallel();
+        profiling_init_parallel();
     }
 
     PARALLEL_REGION
     {
-        ProfilingStart("print");
+        profiling_start("print");
         std::cout << "Hello dudes, I'm gonna take a nap for a sec.\n";
-        ProfilingStop("print");
-        ProfilingStart("sleep");
+        profiling_stop("print");
+        profiling_start("sleep");
         system("sleep 1");
-        ProfilingStop("sleep");
-        ProfilingStart("overhead");
-        ProfilingStop("overhead");
+        profiling_stop("sleep");
+        profiling_start("overhead");
+        profiling_stop("overhead");
     }
 
-    ProfilingGetBackend("chrono").Report();
+    profiling_backend("chrono").report();
     return 0;
 }

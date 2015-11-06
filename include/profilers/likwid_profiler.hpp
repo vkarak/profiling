@@ -3,45 +3,45 @@
 #include "profilers/profiler.hpp"
 #include <likwid.h>
 
-class LikwidProfiler : public Profiler
+class likwid_profiler : public profiler
 {
 public:
-    LikwidProfiler()
+    likwid_profiler()
     {
         likwid_markerInit();
     }
 
-    ~LikwidProfiler()
+    ~likwid_profiler()
     {
         likwid_markerClose();
     }
 
-    void InitParallel()
+    void init_parallel()
     {
         likwid_markerThreadInit();
     }
 
-    void Start(const std::string &region)
+    void start(const std::string &region)
     {
         likwid_markerStartRegion(region.c_str());
     }
 
-    void Stop(const std::string &region)
+    void stop(const std::string &region)
     {
         likwid_markerStopRegion(region.c_str());
     }
 
-    double Time(const std::string &region)
+    double time(const std::string &region)
     {
         return 0.;
     }
 
-    double Time()
+    double time()
     {
         return 0.;
     }
 
-    void Report() const
+    void report() const
     {
         // nothing to report from here
     }

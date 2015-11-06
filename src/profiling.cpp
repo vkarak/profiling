@@ -3,95 +3,95 @@
 
 #include <map>
 
-class NullProfiler : public Profiler
+class null_profiler : public profiler
 {
 public:
-    void InitParallel() { }
-    void Start(const std::string &region) { }
-    void Stop(const std::string &region) { }
-    double Time(const std::string &region) { return 0.; }
-    double Time() { return 0.; }
-    void Report() const { }
+    void init_parallel() { }
+    void start(const std::string &region) { }
+    void stop(const std::string &region) { }
+    double time(const std::string &region) { return 0.; }
+    double time() { return 0.; }
+    void report() const { }
 };
 
-static NullProfiler NoProfiler;
+static null_profiler no_profiler;
 
-class ProfilingFramework
+class profiling_framework
 {
 public:
-    static ProfilingFramework &GetInstance()
+    static profiling_framework &instance()
     {
-        static ProfilingFramework instance;
+        static profiling_framework instance;
         return instance;
     }
 
-    void RegisterProfiler(Profiler &prof, const std::string &name)
+    void register_backend(profiler &prof, const std::string &name)
     {
         profilers_.insert(std::make_pair(name, &prof));
     }
 
-    void InitParallel()
+    void init_parallel()
     {
         for (auto p : profilers_)
-            p.second->InitParallel();
+            p.second->init_parallel();
     }
 
-    void StartProfiling(const std::string &region)
+    void start_profiling(const std::string &region)
     {
         for (auto p : profilers_)
-            p.second->Start(region);
+            p.second->start(region);
     }
 
-    void StopProfiling(const std::string &region)
+    void stop_profiling(const std::string &region)
     {
         auto p_end = profilers_.rend();
         for (auto pi = profilers_.rbegin(); pi != p_end; ++pi)
-            (*pi).second->Stop(region);
+            (*pi).second->stop(region);
     }
 
-    Profiler &GetProfiler(const std::string &name)
+    profiler &backend(const std::string &name)
     {
         if (profilers_.find(name) == profilers_.end()) {
-            return NoProfiler;
+            return no_profiler;
         }
 
         return *profilers_[name];
     }
 
 private:
-    ProfilingFramework() { }
-    ProfilingFramework(const ProfilingFramework &) = delete;
-    void operator=(const ProfilingFramework &) = delete;
-    std::map<const std::string, Profiler *> profilers_;
+    profiling_framework() { }
+    profiling_framework(const profiling_framework &) = delete;
+    void operator=(const profiling_framework &) = delete;
+    std::map<const std::string, profiler *> profilers_;
 };
 
-void ProfilingInit()
+void profiling_init()
 {
     // Just initialize the singleton
-    ProfilingFramework::GetInstance();
+    profiling_framework::instance();
 }
 
-void ProfilingInitParallel()
+void profiling_init_parallel()
 {
-    ProfilingFramework::GetInstance().InitParallel();
+    profiling_framework::instance().init_parallel();
 }
 
-void ProfilingRegisterBackend(Profiler &prof, const std::string &name)
+void profiling_register_backend(profiler &prof, const std::string &name)
 {
-    ProfilingFramework::GetInstance().RegisterProfiler(prof, name);
+    profiling_framework::instance().register_backend(prof, name);
 }
 
-Profiler &ProfilingGetBackend(const std::string &name)
+profiler &profiling_backend(const std::string &name)
 {
-    return ProfilingFramework::GetInstance().GetProfiler(name);
+    return profiling_framework::instance().backend(name);
 }
 
-void ProfilingStart(const std::string &region)
+void profiling_start(const std::string &region)
 {
-    ProfilingFramework::GetInstance().StartProfiling(region);
+    profiling_framework::instance().start_profiling(region);
 }
 
-void ProfilingStop(const std::string &region)
+void profiling_stop(const std::string &region)
 {
-    ProfilingFramework::GetInstance().StopProfiling(region);
+    profiling_framework::instance().stop_profiling(region);
 }

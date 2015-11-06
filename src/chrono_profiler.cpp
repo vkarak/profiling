@@ -1,9 +1,9 @@
 #include "profilers/chrono_profiler.hpp"
 #include "utility/platform.hpp"
 
-void ChronoProfiler::InitParallel()
+void chrono_profiler::init_parallel()
 {
-    auto tid = GetSystemThreadID();
+    auto tid = system_thread_id();
     guard_.lock();
     if (tid_map_.find(tid) == tid_map_.end()) {
         tid_map_.insert(std::make_pair(tid, tid_map_.size()));
@@ -13,10 +13,10 @@ void ChronoProfiler::InitParallel()
     guard_.unlock();
 }
 
-double ChronoProfiler::Time()
+double chrono_profiler::time()
 {
     // Accumulate times for all regions of the current thread
-    auto task_id = GetLocalTaskID();
+    auto task_id = local_task_id();
     double time = 0.;
     for (auto t : timestamps_[task_id]) {
         time += t.second.second;
@@ -25,10 +25,10 @@ double ChronoProfiler::Time()
     return time;
 }
 
-double ChronoProfiler::Time(const std::string &region)
+double chrono_profiler::time(const std::string &region)
 {
     double time = 0.;
-    auto task_id = GetLocalTaskID();
+    auto task_id = local_task_id();
     if (task_id >= 0 &&
         timestamps_[task_id].find(region) != timestamps_[task_id].cend())
         time = timestamps_[task_id][region].second;
@@ -36,7 +36,7 @@ double ChronoProfiler::Time(const std::string &region)
     return time;
 }
 
-void ChronoProfiler::Report() const
+void chrono_profiler::report() const
 {
     for (std::size_t i = 0; i < timestamps_.size(); ++i) {
         double time_per_thread = 0.;
